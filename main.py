@@ -7,6 +7,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.api.v1.routes import api_router
 from src.core.config import Settings, settings
 from src.database.session import init_db
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s:%(lineno)d - %(levelname)s - %(message)s",
+)
+
+logger = logging.getLogger(__name__)
 
 
 class App:
@@ -21,7 +29,7 @@ class App:
             lifespan=self.lifespan,
         )
         self.__setup_middlewares(settings=settings)
-        self.__setup_routes(settings=settings, router=api_router)
+        self.__setup_api_routes(settings=settings, router=api_router)
 
     def __setup_middlewares(self, settings: Settings):
         self.__app.add_middleware(
@@ -32,11 +40,12 @@ class App:
             allow_headers=["*"],
         )
 
-    def __setup_routes(self, router: APIRouter, settings: Settings):
+    def __setup_api_routes(self, router: APIRouter, settings: Settings):
         self.__app.include_router(router, prefix=settings.API_V1_STR)
 
     @asynccontextmanager
     async def lifespan(self, app: FastAPI):
+        logger.info("Calling init DB...")
         init_db()
         yield
 

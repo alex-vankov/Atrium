@@ -19,9 +19,9 @@ class Settings(BaseSettings):
         else:
             return v
 
-    JWT_SECRET_KEY: str = os.getenv("SECRET_KEY")
-    JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM")
-    JWT_EXPIRATION: int = os.getenv("JWT_EXPIRATION")
+    JWT_SECRET_KEY: str = os.getenv("SECRET_KEY", "secret")
+    JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")
+    JWT_EXPIRATION: int = os.getenv("JWT_EXPIRATION", 60)
 
     DATABASE_URL: str = os.getenv("DATABASE_URL")
 

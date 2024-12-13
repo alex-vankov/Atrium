@@ -1,12 +1,38 @@
 from sqlalchemy import Column, String
-from models.base import Base, BaseMixin
+from src.models.base import Base
+import uuid
+from enum import Enum as PyEnum
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import (
+    Column,
+    Enum,
+    ForeignKey,
+    String,
+)
 
 
-class User(Base, BaseMixin):
+class Role(PyEnum):
+
+    """
+    Enum representing user roles.
+    """
+    ADMIN = "admin"
+    OPERATOR = "operator"
+    USER = "user"
+
+
+class User(Base):
+
     """
     Database model representing "users" table in the database.
     UUID and table name are inherited from BaseMixin.
     """
 
-    username = Column(String)
-    password = Column(String)
+    __tablename__ = "users"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+    firstname = Column(String(), nullable=False)
+    lastname = Column(String(), nullable=False)
+    email = Column(String(), unique=True, nullable=False)
+    password = Column(String(), nullable=False)
+    role = Column(Enum(Role, name="role_enum"), default=Role.USER)

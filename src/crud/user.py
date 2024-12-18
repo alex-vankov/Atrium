@@ -1,3 +1,4 @@
+from pydantic import EmailStr
 from sqlalchemy.orm import Session
 import logging
 
@@ -36,24 +37,34 @@ def is_user(current_user: User):
     return current_user.role == Role.USER
 
 
-def email_exists(db: Session, email: str):
+def email_exists(db: Session, email: EmailStr):
     """
     Check if the email exists in the database.
     """
     return db.query(User).filter(User.email == email).first()
+
+def username_exists(db: Session, username: str):
+    """
+    Check if the username exists in the database.
+    """
+    return db.query(User).filter(User.username == username).first()
 
 
 def create_user(db: Session, user: CreateUserRequest):
     """
     Create a new user.
     """
+    if username_exists(db, user.username):
+        return AlreadyExists(content="Username")
+
     if email_exists(db, user.email):
         return AlreadyExists(content="User")
 
     db_user = User(
         firstname=user.firstname,
         lastname=user.lastname,
-        email=user.email,
+        username=user.username,
+        email=str(user.email),
         password=get_password_hash(user.password),
     )
 
@@ -64,7 +75,7 @@ def create_user(db: Session, user: CreateUserRequest):
     return f"Welcome on board, {user.firstname} {user.lastname}!"
 
 
-def get_me(db: Session, current_user: User):
+def get_me(current_user: User):
     """
     Get user data.
     """

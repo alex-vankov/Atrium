@@ -17,7 +17,7 @@ class Role(PyEnum):
     Enum representing user roles.
     """
     ADMIN = "admin"
-    OPERATOR = "operator"
+    MODERATOR = "moderator"
     USER = "user"
 
 
@@ -33,6 +33,7 @@ class User(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     firstname = Column(String(), nullable=False)
     lastname = Column(String(), nullable=False)
+    username = Column(String(), unique=True, nullable=False)
     email = Column(String(), unique=True, nullable=False)
     password = Column(String(), nullable=False)
     role = Column(Enum(Role, name="role_enum"), default=Role.USER)

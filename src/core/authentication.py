@@ -33,10 +33,10 @@ def get_password_hash(password: str):
 
 
 def authenticate_user(
-    email: EmailStr, password: str, session: Session = Depends(get_db)
+    username: str, password: str, session: Session = Depends(get_db)
 ) -> User | None:
 
-    user = session.query(User).filter(User.email == email).first()
+    user = session.query(User).filter(User.username == username).first()
 
     if user is None:
         return None

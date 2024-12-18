@@ -12,6 +12,7 @@ class CreateUserRequest(BaseModel):
 
     firstname: str = Field(min_length=3, max_length=50, examples=["John"])
     lastname: str = Field(min_length=3, max_length=50, examples=["Doe"])
+    username: str = Field(min_length=3, max_length=30, examples=["johndoe"])
     email: EmailStr = Field(min_length=6, max_length=50, examples=["johndoe@gmail.com"])
     password: str = Field(min_length=8, max_length=50, examples=["password"])
 
@@ -35,6 +36,17 @@ class CreateUserRequest(BaseModel):
 
         if not re.match(r"^[a-zA-Z]*$", value):
             raise ValueError("Lastname must contain only alphabetic characters")
+        return value
+
+    @field_validator("username")
+    def validate_username(cls, value):
+
+        """
+        Validate username to contain only alphabetic characters and numbers.
+        """
+
+        if not re.match(r"^[a-zA-Z0-9]*$", value):
+            raise ValueError("Username must contain only alphabetic characters and numbers")
         return value
 
     @field_validator("password")
@@ -65,8 +77,8 @@ class LoginRequest(BaseModel):
     Schema for logging in a user.
     """
 
-    email: EmailStr = Field(min_length=6, max_length=50, examples=["johndoe@gmail.com"])
-    password: str = Field(min_length=8, max_length=50, examples=["password"])
+    username: str = Field(min_length=6, max_length=50, examples=["johndoe"])
+    password: str = Field(min_length=8, max_length=50, examples=["password123!"])
 
     @field_validator("password")
     def validate_password(cls, value):
@@ -89,5 +101,5 @@ class UserResponse(BaseModel):
 
     firstname: str
     lastname: str
-    email: EmailStr
+    email: str
     role: Role

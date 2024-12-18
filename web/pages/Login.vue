@@ -81,9 +81,14 @@ export default {
 
 <style scoped>
 .login-container {
-  width: 300px;
-  margin: 100px auto;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
   text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 .form-group {
   margin-bottom: 15px;
@@ -94,11 +99,16 @@ input {
   box-sizing: border-box;
 }
 button {
-  padding: 10px;
-  background-color: #42b983;
-  color: white;
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  background-color: #007bff;
+  color: #fff;
   border: none;
+  border-radius: 4px;
   cursor: pointer;
+  margin-top: 15px;
+  margin-bottom: 15px;
 }
 button:hover {
   background-color: #369870;

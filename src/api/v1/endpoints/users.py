@@ -21,11 +21,11 @@ router = APIRouter()
 
 
 @router.get("/me")
-def me(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def me(user: User = Depends(get_current_user)):
     return get_me(user)
 
 
-@router.post("/register")
+@router.post("/")
 def register(user: CreateUserRequest, db: Session = Depends(get_db)):
     """
     Register a new user.

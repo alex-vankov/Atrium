@@ -101,5 +101,6 @@ class UserResponse(BaseModel):
 
     firstname: str
     lastname: str
+    username: str
     email: str
     role: Role

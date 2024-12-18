@@ -23,11 +23,11 @@ def is_admin(current_user: User):
     return current_user.role == Role.ADMIN
 
 
-def is_operator(current_user: User):
+def is_moderator(current_user: User):
     """
     Check if the user is an operator.
     """
-    return current_user.role == Role.OPERATOR
+    return current_user.role == Role.MODERATOR
 
 
 def is_user(current_user: User):
@@ -72,7 +72,13 @@ def create_user(db: Session, user: CreateUserRequest):
     db.commit()
     db.refresh(db_user)
 
-    return f"Welcome on board, {user.firstname} {user.lastname}!"
+    return UserResponse(
+        firstname=db_user.firstname,
+        lastname=db_user.lastname,
+        username=db_user.username,
+        email=db_user.email,
+        role=db_user.role,
+    )
 
 
 def get_me(current_user: User):
@@ -86,6 +92,7 @@ def get_me(current_user: User):
     return UserResponse(
         firstname=current_user.firstname,
         lastname=current_user.lastname,
+        username=current_user.username,
         email=current_user.email,
         role=current_user.role,
     )

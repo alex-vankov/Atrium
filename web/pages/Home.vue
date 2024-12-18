@@ -18,10 +18,15 @@ export default {
 <style scoped>
 h1 {
   color: darkolivegreen;
+  font-size: 3em;
+  text-align: center;
+  margin-top: 100px;
 }
 
 p {
   font-size: 1.5em;
+  text-align: center;
+  padding-inline: 200px;
   color: tan;
 }
 </style>

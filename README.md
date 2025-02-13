@@ -1,1 +1,2 @@
-![favicon](https://github.com/user-attachments/assets/070d40d7-d24e-48ef-a6f4-2141faa9d4f1)
+
+![Atrium_logo](https://github.com/user-attachments/assets/89db4350-d209-4c32-b89c-67ef39dc7b0c)

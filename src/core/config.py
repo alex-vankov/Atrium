@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "App"
 
-    CORS_ALLOWED_HOSTS: list[str] = ["http://localhost:5176"]
+    CORS_ALLOWED_HOSTS: list[str] = ["http://localhost:5173"]
 
     @field_validator("CORS_ALLOWED_HOSTS", check_fields=False)
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:

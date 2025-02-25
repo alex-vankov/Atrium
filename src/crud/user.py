@@ -74,6 +74,7 @@ def create_user(db: Session, user: CreateUserRequest):
     db.refresh(db_user)
 
     return UserResponse(
+        id=db_user.id,
         firstname=db_user.firstname,
         lastname=db_user.lastname,
         username=db_user.username,
@@ -91,11 +92,28 @@ def get_me(current_user: User):
         return Unauthorized()
 
     return UserResponse(
+        id = current_user.id,
         firstname=current_user.firstname,
         lastname=current_user.lastname,
         username=current_user.username,
         email=current_user.email,
         role=current_user.role,
+    )
+
+def get_user_by_id(db: Session, user_id: uuid.UUID):
+    """
+    Get a user by user_id.
+    """
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return NotFound(key="User", key_value="")
+    return UserResponse(
+        id=user.id,
+        firstname=user.firstname,
+        lastname=user.lastname,
+        username=user.username,
+        email=user.email,
+        role=user.role
     )
 
 def search_user(db: Session, user: User , search_type: SearchType,  search_value: str):
@@ -114,6 +132,7 @@ def search_user(db: Session, user: User , search_type: SearchType,  search_value
         if not users:
             return NotFound(key="Users", key_value=search_value)
         return [UserResponse(
+            id=user.id,
             firstname=user.firstname,
             lastname=user.lastname,
             username=user.username,
@@ -126,6 +145,7 @@ def search_user(db: Session, user: User , search_type: SearchType,  search_value
         if not users:
             return NotFound(key="Users", key_value=search_value)
         return [UserResponse(
+            id=user.id,
             firstname=user.firstname,
             lastname=user.lastname,
             username=user.username,
@@ -137,21 +157,25 @@ def search_user(db: Session, user: User , search_type: SearchType,  search_value
         users = db.query(User).filter(User.username.like(f"%{search_value}%")).first()
         if not users:
             return NotFound(key="User", key_value=search_value)
-        return UserResponse(firstname=users.firstname,
-                            lastname=users.lastname,
-                            username=users.username,
-                            email=users.email,
-                            role=users.role
+        return UserResponse(
+            id=users.id,
+            firstname=users.firstname,
+            lastname=users.lastname,
+            username=users.username,
+            email=users.email,
+            role=users.role
         )
 
     if search_type == SearchType.EMAIL:
         users = db.query(User).filter(User.email.like(f"%{search_value}%")).first()
         if not users:
             return NotFound(key="User", key_value=search_value)
-        return UserResponse(firstname=users.firstname,
-                            lastname=users.lastname,
-                            username=users.username,
-                            email=users.email,
-                            role=users.role
+        return UserResponse(
+            id=users.id,
+            firstname=users.firstname,
+            lastname=users.lastname,
+            username=users.username,
+            email=users.email,
+            role=users.role
         )
 

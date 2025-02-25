@@ -1,3 +1,5 @@
+import uuid
+
 from pydantic import BaseModel, Field, field_validator, EmailStr
 from src.models.user import Role
 from typing import Optional
@@ -99,6 +101,7 @@ class UserResponse(BaseModel):
     Schema for returning user data.
     """
 
+    id: uuid.UUID
     firstname: str
     lastname: str
     username: str

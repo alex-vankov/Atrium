@@ -21,6 +21,28 @@ class Role(PyEnum):
     USER = "user"
 
 
+class State(PyEnum):
+
+    """
+    Enum representing user states.
+    """
+
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    DELETED = "deleted"
+
+
+class StateAction(PyEnum):
+
+    """
+    Enum representing user state actions.
+    """
+
+    ACTIVATE = "activate"
+    DEACTIVATE = "deactivate"
+    DELETE = "delete"
+
+
 class User(Base):
 
     """
@@ -37,3 +59,4 @@ class User(Base):
     email = Column(String(), unique=True, nullable=False)
     password = Column(String(), nullable=False)
     role = Column(Enum(Role, name="role_enum"), default=Role.USER)
+    state = Column(Enum(State, name="state_enum"), default=State.ACTIVE)

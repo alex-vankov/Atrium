@@ -8,7 +8,7 @@ import uuid
 from src.common.responses import AlreadyExists, NotFound, Unauthorized, BadRequest, ForbiddenAccess
 from src.core.authentication import (get_password_hash, get_current_user, verify_password, authenticate_user, create_access_token)
 
-from src.models.user import User, Role
+from src.models.user import User, Role, State, StateAction
 from src.models.search import SearchType
 
 from src.schemas.user import (CreateUserRequest, LoginRequest, UserResponse, UpdateEmailRequest)
@@ -49,6 +49,31 @@ def username_exists(db: Session, username: str):
     Check if the username exists in the database.
     """
     return db.query(User).filter(User.username == username).first()
+
+
+def change_state(db: Session, user: User, action: StateAction):
+    """
+    Change the state of a user.
+    """
+    if action == StateAction.ACTIVATE:
+        user.state = State.ACTIVE
+    elif action == StateAction.DEACTIVATE:
+        user.state = State.INACTIVE
+    elif action == StateAction.DELETE:
+        user.state = State.DELETED
+
+    db.commit()
+    db.refresh(user)
+
+    return UserResponse(
+        id=user.id,
+        firstname=user.firstname,
+        lastname=user.lastname,
+        username=user.username,
+        email=user.email,
+        role=user.role,
+        state=user.state
+    )
 
 
 def create_user(db: Session, user: CreateUserRequest):

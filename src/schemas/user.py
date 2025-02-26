@@ -1,7 +1,7 @@
 import uuid
 
 from pydantic import BaseModel, Field, field_validator, EmailStr
-from src.models.user import Role
+from src.models.user import Role, State
 from typing import Optional
 import re
 
@@ -107,3 +107,4 @@ class UserResponse(BaseModel):
     username: str
     email: str
     role: Role
+    state: State

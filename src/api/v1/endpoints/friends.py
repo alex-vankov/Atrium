@@ -2,7 +2,8 @@ from src.core.authentication import get_current_user
 from src.models.friends import Friendship, FriendshipStatus, FriendRequestAction
 from src.schemas.friends import FriendRequestResponse
 from src.models.user import User, Role
-from src.crud.friends import (create_friend_request, view_friend_requests, view_friends, open_friend_request)
+from src.crud.friends import (create_friend_request, view_friend_requests,
+                              view_friends, open_friend_request, get_friendships_log)
 from fastapi import APIRouter, Depends, Header, Query
 from pydantic import EmailStr
 from sqlalchemy.orm import Session
@@ -15,6 +16,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+@router.get("/log")
+def get_friendships(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """
+    Get a log of friendships.
+    """
+    return get_friendships_log(db, user)
 
 @router.get("/")
 def get_friends(user: User = Depends(get_current_user), db: Session = Depends(get_db)):

@@ -6,7 +6,7 @@ from jose import jwt, JWTError
 from passlib.context import CryptContext
 from dotenv import load_dotenv
 from src.schemas.token import TokenData
-from src.models.user import User
+from src.models.user import User, State
 from sqlalchemy.orm import Session
 from src.api.deps import get_db
 from pydantic import EmailStr
@@ -36,7 +36,7 @@ def authenticate_user(
     username: str, password: str, session: Session = Depends(get_db)
 ) -> User | None:
 
-    user = session.query(User).filter(User.username == username).first()
+    user = session.query(User).filter(User.username == username, User.state == State.ACTIVE).first()
 
     if user is None:
         return None

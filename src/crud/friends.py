@@ -8,7 +8,7 @@ from sqlalchemy import or_, and_
 import logging
 from datetime import datetime
 
-from typing import List
+from typing import List, Type
 import uuid
 
 from src.common.responses import AlreadyExists, NotFound, Unauthorized, BadRequest, ForbiddenAccess
@@ -23,6 +23,16 @@ from src.crud.user import get_user_by_id, is_admin, is_moderator
 logger = logging.getLogger(__name__)
 
 
+def format_friend_request_response(db: Session, friend_request: Friendship | Type[Friendship]):
+    return FriendRequestResponse(id=friend_request.id,
+                                 created=friend_request.created.strftime("%H:%M:%S %d-%m-%Y"),
+                                 sender=get_user_by_id(db, friend_request.user_id),
+                                 receiver=get_user_by_id(db, friend_request.receiver_id),
+                                 status=friend_request.status,
+                                 responded=friend_request.responded.strftime("%H:%M:%S %d-%m-%Y")
+                                 if friend_request.responded
+                                 else friend_request.responded)
+
 def get_friendships_log(db: Session, current_user: User):
 
     if not current_user:
@@ -33,14 +43,7 @@ def get_friendships_log(db: Session, current_user: User):
 
     friendships = db.query(Friendship).all()
 
-    return [FriendRequestResponse(id=friendship.id,
-                                  created=friendship.created.strftime("%H:%M:%S %d-%m-%Y"),
-                                  sender=get_user_by_id(db, friendship.user_id),
-                                  receiver=get_user_by_id(db, friendship.receiver_id),
-                                  status=friendship.status,
-                                  responded=friendship.responded.strftime("%H:%M:%S %d-%m-%Y")
-                                  if friendship.responded
-                                  else friendship.responded)
+    return [format_friend_request_response(db, friendship)
             for friendship in friendships]
 
 
@@ -83,17 +86,10 @@ def view_friend_requests(db: Session, current_user: User):
     if not friend_requests:
         return NotFound(key="Friend requests", key_value="")
 
-    return [FriendRequestResponse(id=friend_request.id,
-                                  created=friend_request.created.strftime("%H:%M:%S %d-%m-%Y"),
-                                  sender=get_user_by_id(db, friend_request.user_id),
-                                  receiver=get_user_by_id(db, friend_request.receiver_id),
-                                  status=friend_request.status,
-                                  responded=friend_request.responded.strftime("%H:%M:%S %d-%m-%Y")
-                                  if friend_request.responded
-                                  else friend_request.responded)
+    return [format_friend_request_response(db, friend_request)
             for friend_request in friend_requests]
 
-def accept_friend_request(db: Session, current_user: User, friend_request: Friendship):
+def accept_friend_request(db: Session, current_user: User, friend_request: Friendship | Type[Friendship]):
 
     if not current_user:
         return Unauthorized()
@@ -113,17 +109,10 @@ def accept_friend_request(db: Session, current_user: User, friend_request: Frien
     db.commit()
     db.refresh(friend_request)
 
-    return FriendRequestResponse(id=friend_request.id,
-                                 created=friend_request.created.strftime("%H:%M:%S %d-%m-%Y"),
-                                 sender=get_user_by_id(db, friend_request.user_id),
-                                 receiver=get_user_by_id(db, friend_request.receiver_id),
-                                 status=friend_request.status,
-                                 responded=friend_request.responded.strftime("%H:%M:%S %d-%m-%Y")
-                                 if friend_request.responded
-                                 else friend_request.responded)
+    return format_friend_request_response(db, friend_request)
 
 
-def reject_friend_request(db: Session, current_user: User, friend_request: Friendship):
+def reject_friend_request(db: Session, current_user: User, friend_request: Friendship | Type[Friendship]):
 
     if not current_user:
         return Unauthorized()
@@ -143,14 +132,7 @@ def reject_friend_request(db: Session, current_user: User, friend_request: Frien
     db.commit()
     db.refresh(friend_request)
 
-    return FriendRequestResponse(id=friend_request.id,
-                                 created=friend_request.created.strftime("%H:%M:%S %d-%m-%Y"),
-                                 sender=get_user_by_id(db, friend_request.user_id),
-                                 receiver=get_user_by_id(db, friend_request.receiver_id),
-                                 status=friend_request.status,
-                                 responded=friend_request.responded.strftime("%H:%M:%S %d-%m-%Y")
-                                 if friend_request.responded
-                                 else friend_request.responded)
+    return format_friend_request_response(db, friend_request)
 
 
 def open_friend_request(db: Session, current_user: User, friend_request_id: uuid.UUID, action: FriendRequestAction):
@@ -183,14 +165,7 @@ def open_friend_request(db: Session, current_user: User, friend_request_id: uuid
             friend_request.responded = datetime.now()
             db.commit()
             db.refresh(friend_request)
-            return FriendRequestResponse(id=friend_request.id,
-                                         created=friend_request.created.strftime("%H:%M:%S %d-%m-%Y"),
-                                         sender=get_user_by_id(db, friend_request.user_id),
-                                         receiver=get_user_by_id(db, friend_request.receiver_id),
-                                         status=friend_request.status,
-                                         responded=friend_request.responded.strftime("%H:%M:%S %d-%m-%Y")
-                                         if friend_request.responded
-                                         else friend_request.responded)
+            return format_friend_request_response(db, friend_request)
 
 
 def create_friend_request(db: Session, current_user: User, receiver_id: uuid.UUID):
@@ -203,7 +178,7 @@ def create_friend_request(db: Session, current_user: User, receiver_id: uuid.UUI
 
     receiver = db.query(User).filter(User.id == receiver_id).first()
     if not receiver:
-        return NotFound("User not found.")
+        return NotFound(key="User", key_value=f"{receiver_id}")
 
     """
     Create a friend request.
@@ -234,16 +209,7 @@ def create_friend_request(db: Session, current_user: User, receiver_id: uuid.UUI
     db.commit()
     db.refresh(new_friend_request)
 
-    return FriendRequestResponse(
-        id=new_friend_request.id,
-        created=new_friend_request.created.strftime("%H:%M:%S %d-%m-%Y"),
-        sender=get_user_by_id(db, new_friend_request.user_id),
-        receiver=get_user_by_id(db, new_friend_request.receiver_id),
-        status=new_friend_request.status,
-        responded=new_friend_request.responded.strftime("%H:%M:%S %d-%m-%Y")
-        if new_friend_request.responded
-        else new_friend_request.responded
-    )
+    return format_friend_request_response(db, new_friend_request)
 
 
 def if_friends(db: Session, first_user: uuid.UUID, second_user: uuid.UUID):

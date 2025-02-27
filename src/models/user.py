@@ -43,6 +43,12 @@ class StateAction(PyEnum):
     DELETE = "delete"
 
 
+class ProfileType(PyEnum):
+
+    PUBLIC = "public"
+    PRIVATE = "private"
+
+
 class User(Base):
 
     """
@@ -60,3 +66,4 @@ class User(Base):
     password = Column(String(), nullable=False)
     role = Column(Enum(Role, name="role_enum"), default=Role.USER)
     state = Column(Enum(State, name="state_enum"), default=State.ACTIVE)
+    type = Column(Enum(ProfileType, name="type_enum"), default=ProfileType.PUBLIC)

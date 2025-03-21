@@ -37,7 +37,3 @@ class Message(Base):
     content = Column(String, nullable=False)
     status = Column(Enum(MessageStatus, name="message_status_enum"), default=MessageStatus.DELIVERED)
     seen = Column(DateTime, default=None, nullable=True)
-
-    __table_args__ = (
-        UniqueConstraint("sender_id", "receiver_id", "content", name="unique_message"),
-    )

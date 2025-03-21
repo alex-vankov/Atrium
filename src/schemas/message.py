@@ -15,7 +15,7 @@ class MessageRequest(BaseModel):
     Schema for sending a message.
     """
 
-    receiver_id: uuid.UUID = Field(min_length=36, max_length=36, examples=["123e4567-e89b-12d3-a456-426614174000"])
+    receiver_id: str = Field(min_length=36, max_length=36, examples=["123e4567-e89b-12d3-a456-426614174000"])
     content: str = Field(min_length=1, max_length=1000, examples=["Hello!"])
 
 class MessageResponse(BaseModel):
@@ -30,4 +30,17 @@ class MessageResponse(BaseModel):
     receiver: UserResponse = Field()
     content: str = Field()
     status: MessageStatus
-    seen: datetime
+    seen: datetime | None
+
+
+class ChatMessageResponse(BaseModel):
+
+    """
+    Schema for a chat message response.
+    """
+
+    id: uuid.UUID = Field(examples=["123e4567-e89b-12d3-a456-426614174000"])
+    created: str = Field()
+    sender: str = Field()
+    content: str = Field()
+    status: MessageStatus

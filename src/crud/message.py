@@ -18,7 +18,7 @@ from src.models.user import User, Role, State, ProfileType
 from src.models.search import SearchType
 
 from src.schemas.user import (CreateUserRequest, LoginRequest, UserResponse, UpdateEmailRequest)
-from src.schemas.message import MessageRequest, MessageResponse
+from src.schemas.message import MessageRequest, MessageResponse, ChatMessageResponse
 from src.crud.friends import if_friends
 from src.crud.user import get_user_by_id, is_admin, is_moderator, is_public
 
@@ -42,9 +42,38 @@ def get_messages(db: Session, current_user: User):
 
     messages = db.query(Message).filter(
         or_(Message.sender_id == current_user.id, Message.receiver_id == current_user.id)
-    ).all()
+    ).order_by(Message.created).all()
 
     return [format_message_response(db, message)
+            for message in messages]
+
+def open_chat(db: Session, current_user: User, user_id: uuid.UUID):
+    if not current_user:
+        return Unauthorized()
+
+    user = get_user_by_id(db, user_id)
+
+    if not user:
+        return NotFound("User", str(user_id))
+
+    if not if_friends(db, current_user.id, user_id) and not is_public(user):
+        return BadRequest("You are not friends with this user.")
+
+    messages = db.query(Message).filter(
+        or_(and_(Message.sender_id == current_user.id, Message.receiver_id == user_id),
+            and_(Message.sender_id == user_id, Message.receiver_id == current_user.id))
+    ).order_by(Message.created).all()
+
+    for message in messages:
+        if message.receiver_id == current_user.id and message.status == MessageStatus.DELIVERED:
+            message.status = MessageStatus.SEEN
+            message.seen = datetime.now()
+    db.commit()
+
+    return [ChatMessageResponse(id=message.id, created=message.created.strftime("%H:%M:%S %d-%m-%Y"),
+                                sender=get_user_by_id(db, message.sender_id).username,
+                                content=message.content,
+                                status=message.status)
             for message in messages]
 
 def create_message(db: Session, current_user: User, message: MessageRequest):
